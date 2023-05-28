@@ -7,6 +7,7 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const productRoutes = require("./routes/productRoutes");
 const paymentRoutes = require("./routes/payment");
 const orderRoutes = require("./routes/orderRoutes");
+const flexRoutes = require("./routes/flexRoutes");
 const app = express();
 
 // database connection
@@ -22,7 +23,7 @@ app.post(
 );
 // add middleware
 app.use(express.json());
-console.log("kkkkkk");
+
 app.get("/", (req, res) => {
   res.json({ msg: "Welcome to chawkbazar" });
 });
@@ -32,6 +33,7 @@ app.use("/api", categoryRoutes);
 app.use("/api", productRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api", orderRoutes);
+app.use("/api", flexRoutes);
 
 const port = env.PORT || 5000;
 

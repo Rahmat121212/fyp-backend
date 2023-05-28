@@ -3,19 +3,20 @@ const formidable = require("formidable");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
-const CategoryModel = require("../models/Category");
-class Category {
+const Flex = require("../models/Flex");
+
+class FlexController {
   async create(req, res) {
     const form = formidable({ multiples: true });
     form.parse(req, async (err, fields, files) => {
-      console.log("fields--------->", files);
+      console.log("fields----------->", fields);
       if (!err) {
         const parsedData = JSON.parse(fields.data);
 
         const errors = [];
         if (errors.length === 0) {
           const { name } = JSON.parse(fields.data);
-          const exit = await CategoryModel.findOne({ name });
+          const exit = await Flex.findOne({ name });
           if (exit) {
             errors.push({ msg: "Name is Already Exist" });
           }
@@ -24,6 +25,9 @@ class Category {
           }
           if (!files["image"]) {
             errors.push({ msg: "Image is required" });
+          }
+          if (parsedData.url.trim().length === 0) {
+            errors.push({ msg: "url is required" });
           }
           if (errors.length === 0) {
             const images = {};
@@ -50,16 +54,18 @@ class Category {
               error["msg"] = `image has invalid ${extension} type`;
               errors.push(error);
             }
-            // }
+
             if (errors.length === 0) {
               try {
-                const response = await CategoryModel.create({
-                  name: parsedData.name,
+                const { name, url } = JSON.parse(fields.data);
+                const response = await Flex.create({
+                  name: name,
                   image: images["image"],
+                  url: url,
                 });
                 return res
                   .status(201)
-                  .json({ msg: "Category has created", response });
+                  .json({ msg: "Flex has been created", response });
               } catch (error) {
                 console.log(error);
                 return res.status(500).json(error);
@@ -77,14 +83,14 @@ class Category {
     });
   }
 
-  async categories(req, res) {
+  async flexs(req, res) {
     const page = req.params.page;
     const perPage = 3;
     const skip = (page - 1) * perPage;
 
     try {
-      const count = await CategoryModel.find({}).countDocuments();
-      const response = await CategoryModel.find({})
+      const count = await Flex.find({}).countDocuments();
+      const response = await Flex.find({})
         .skip(skip)
         .limit(perPage)
         .sort({ updatedAt: -1 });
@@ -96,11 +102,11 @@ class Category {
     }
   }
 
-  async fetchCategory(req, res) {
+  async fetchFlex(req, res) {
     const { id } = req.params;
 
     try {
-      const response = await CategoryModel.findOne({ _id: id });
+      const response = await Flex.findOne({ _id: id });
       return res.status(200).json({ category: response });
     } catch (error) {
       console.log(error.message);
@@ -108,22 +114,22 @@ class Category {
     }
   }
 
-  async updateCategory(req, res) {
+  async updateFlex(req, res) {
     const { id } = req.params;
-    const { name, image } = req.body;
+    const { name, image, url } = req.body;
     const errors = validationResult(req);
 
     if (errors.isEmpty()) {
-      const exist = await CategoryModel.findOne({ name });
+      const exist = await Flex.findOne({ name });
 
       if (!exist) {
-        const response = await CategoryModel.updateOne(
+        const response = await Flex.updateOne(
           { _id: id },
-          { $set: { name, image } }
+          { $set: { name, image, url } }
         );
         return res
           .status(200)
-          .json({ message: "Your category has been updated successfully!" });
+          .json({ message: "Your flex has been updated successfully!" });
       } else {
         return res
           .status(400)
@@ -134,34 +140,32 @@ class Category {
     }
   }
 
-  async deleteCategory(req, res) {
+  async deleteFlex(req, res) {
     const { id } = req.params;
 
     try {
-      await CategoryModel.deleteOne({ _id: id });
+      await Flex.deleteOne({ _id: id });
       return res
         .status(200)
-        .json({ message: "Category has been deleted successfully!" });
+        .json({ message: "Flex has been deleted successfully!" });
     } catch (error) {
       console.log(error.message);
       return res.status(500).json("Server internal error!");
     }
   }
 
-  async allCategories(req, res) {
+  async allFlexs(req, res) {
     try {
-      const categories = await CategoryModel.find({});
+      const categories = await Flex.find({});
       return res.status(200).json({ categories });
     } catch (error) {
       return res.status(500).json("Server internal error!");
     }
   }
 
-  async randomCategories(req, res) {
+  async randomFlexs(req, res) {
     try {
-      const categories = await CategoryModel.aggregate([
-        { $sample: { size: 3 } },
-      ]);
+      const categories = await Flex.aggregate([{ $sample: { size: 3 } }]);
       return res.status(200).json({ categories });
     } catch (error) {
       return res.status(500).json("Server internal error!");
@@ -169,4 +173,4 @@ class Category {
   }
 }
 
-module.exports = new Category();
+module.exports = new FlexController();
