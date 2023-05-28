@@ -42,7 +42,7 @@ class FlexController {
               const imageName = uuidv4() + `.${extension}`;
               const __dirname = path.resolve();
               const newPath =
-                __dirname + `/../client/public/uploads${imageName}`;
+                __dirname + `/../client/public/uploads/flexs${imageName}`;
               images[`image`] = imageName;
               fs.copyFile(files[`image`].filepath, newPath, (err) => {
                 if (err) {
