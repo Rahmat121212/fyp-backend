@@ -42,7 +42,7 @@ class FlexController {
               const imageName = uuidv4() + `.${extension}`;
               const __dirname = path.resolve();
               const newPath =
-                __dirname + `/../client/public/uploads/flexs${imageName}`;
+                __dirname + `/../client/public/uploads/${imageName}`;
               images[`image`] = imageName;
               fs.copyFile(files[`image`].filepath, newPath, (err) => {
                 if (err) {
@@ -93,7 +93,7 @@ class FlexController {
       const response = await Flex.find({})
         .skip(skip)
         .limit(perPage)
-        .sort({ updatedAt: -1 });
+        .sort({ updatedAt: 1 });
 
       return res.status(200).json({ categories: response, perPage, count });
     } catch (error) {
