@@ -8,11 +8,20 @@ class Category {
   async create(req, res) {
     const form = formidable({ multiples: true });
     form.parse(req, async (err, fields, files) => {
-      console.log("fields--------->", fields);
+      console.log("fields--------->", files);
       if (!err) {
-        // const parsedData = JSON.parse(fields);
+        const parsedData = JSON.parse(fields.data);
+        
         const errors = [];
         if (errors.length === 0) {
+          const {name} = JSON.parse(fields.data);
+          const exit = await CategoryModel.findOne({name})
+          if (exit) {
+            errors.push({ msg: "Name is Already Exist" });
+          }
+          if (parsedData.name.trim().length === 0) {
+            errors.push({ msg: "name is required" });
+          }
           if (!files["image"]) {
             errors.push({ msg: "Image is required" });
           }
@@ -45,7 +54,7 @@ class Category {
             if (errors.length === 0) {
               try {
                 const response = await CategoryModel.create({
-                  name: fields.name,
+                  name: parsedData.name,
                   image: images["image"],
                 });
                 return res
