@@ -13,6 +13,10 @@ const flexSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  index: {
+    type: Number,
+    required: true,
+  },
 });
 
 const Flex = mongoose.model("Flex", flexSchema);

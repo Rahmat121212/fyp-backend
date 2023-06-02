@@ -57,9 +57,10 @@ class FlexController {
 
             if (errors.length === 0) {
               try {
-                const { name, url } = JSON.parse(fields.data);
+                const { name, index, url } = JSON.parse(fields.data);
                 const response = await Flex.create({
                   name: name,
+                  index: index,
                   image: images["image"],
                   url: url,
                 });
